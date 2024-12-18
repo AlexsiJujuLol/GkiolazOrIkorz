@@ -1,0 +1,115 @@
+-- Script Simplifié et Complet pour Blox Fruits
+-- Made by vietorgkiolaz
+
+-- Chargement de la bibliothèque Fluent UI
+local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Advxziv/Fluent-UI-Library/main/Library.lua"))()
+local Window = Fluent:CreateWindow({
+    Name = "Blox Fruits Simplified UI",
+    LoadingTitle = "Chargement du Script",
+    LoadingSubtitle = "by vietorgkiolaz",
+    ConfigurationSaving = { Enabled = true, FolderName = "BloxFruitsScripts", FileName = "UI_Config" }
+}
+
+-- Variables Globales
+local player = game.Players.LocalPlayer
+local isAutoFarmEnabled = false
+local isAutoChestEnabled = false
+local isAutoFruitEnabled = false
+local isAutoFactoryEnabled = false
+local isAutoBountyEnabled = false
+local isAimbotEnabled = false
+
+-- Fonction d'Aimbot
+local function aimbot()
+    local mouse = player:GetMouse()
+    while isAimbotEnabled do
+        wait()
+        local closestEnemy = nil
+        local shortestDistance = math.huge
+
+        for _, enemy in pairs(workspace.Enemies:GetChildren()) do
+            if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
+                local distance = (enemy.HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
+                if distance < shortestDistance then
+                    shortestDistance = distance
+                    closestEnemy = enemy
+                end
+            end
+        end
+
+        if closestEnemy then
+            mouse.Hit = closestEnemy.HumanoidRootPart.CFrame
+        end
+    end
+end
+
+-- Téléportations
+local function teleportToSea1()
+    player.Character.HumanoidRootPart.CFrame = CFrame.new(1056, 18, 1426)
+end
+
+local function teleportToSea2()
+    player.Character.HumanoidRootPart.CFrame = CFrame.new(5673.3, 100, -1512.4)
+end
+
+-- Création des Tabs et Sections
+local MainTab = Window:CreateTab("Main", 4483362458) -- Icon ID
+local FarmingSection = MainTab:CreateSection("Auto-Farm Options")
+local ChestSection = MainTab:CreateSection("Auto-Chest Options")
+local FruitSection = MainTab:CreateSection("Auto-Fruit Options")
+local FactorySection = MainTab:CreateSection("Auto-Factory Options")
+local BountySection = MainTab:CreateSection("Auto-Bounty Options")
+local TeleportSection = MainTab:CreateSection("Teleport Options")
+
+local AimbotTab = Window:CreateTab("Aimbot", 4483362458)
+local AimbotSection = AimbotTab:CreateSection("Aimbot Options")
+
+-- UI Farming
+FarmingSection:CreateToggle("Auto-Farm", "Active l'Auto-Farm rapide", function(state)
+    isAutoFarmEnabled = state
+    if state then autoFarm() end
+end)
+
+-- UI Chest
+ChestSection:CreateToggle("Auto-Chest", "Active la collecte automatique des coffres", function(state)
+    isAutoChestEnabled = state
+    if state then autoChest() end
+end)
+
+-- UI Fruits
+FruitSection:CreateToggle("Auto-Find Fruit", "Cherche et téléporte automatiquement vers les fruits", function(state)
+    isAutoFruitEnabled = state
+    if state then autoFindFruit() end
+end)
+
+-- UI Factory
+FactorySection:CreateToggle("Auto-Factory", "Active l'Auto-Factory", function(state)
+    isAutoFactoryEnabled = state
+    if state then autoFactory() end
+end)
+
+-- UI Bounty
+BountySection:CreateToggle("Auto-Bounty", "Active l'Auto-Bounty", function(state)
+    isAutoBountyEnabled = state
+    if state then autoBounty() end
+end)
+
+-- Aimbot UI
+AimbotSection:CreateToggle("Aimbot", "Active l'Aimbot sur les ennemis proches", function(state)
+    isAimbotEnabled = state
+    if state then aimbot() end
+end)
+
+-- UI Téléportations
+TeleportSection:CreateButton("Téléportation Sea 1", function()
+    teleportToSea1()
+end)
+
+TeleportSection:CreateButton("Téléportation Sea 2", function()
+    teleportToSea2()
+end)
+
+-- Crédit
+local CreditTab = Window:CreateTab("Credits", 4483362458)
+CreditTab:CreateSection("Made by vietorgkiolaz")
+CreditTab:CreateLabel("UI Fluent Library")
