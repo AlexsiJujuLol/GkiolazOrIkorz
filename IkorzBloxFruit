@@ -1,6 +1,24 @@
 -- Script Simplifié et Complet pour Blox Fruits
 -- Made by vietorgkiolaz
 
+-- Vérification du support de l'exécuteur
+local supportedExecutors = {"Synapse X", "Krnl", "Fluxus"}
+local executor = identifyexecutor and identifyexecutor() or "Unknown"
+
+local isSupported = false
+for _, exec in ipairs(supportedExecutors) do
+    if executor == exec then
+        isSupported = true
+        break
+    end
+end
+
+if isSupported then
+    print("Supporté par " .. executor .. ". Profitez-en!")
+else
+    print("Non supporté par cet exécuteur.")
+end
+
 -- Chargement de la bibliothèque Fluent UI
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Advxziv/Fluent-UI-Library/main/Library.lua"))()
 local Window = Fluent:CreateWindow({
@@ -8,38 +26,28 @@ local Window = Fluent:CreateWindow({
     LoadingTitle = "Chargement du Script",
     LoadingSubtitle = "by vietorgkiolaz",
     ConfigurationSaving = { Enabled = true, FolderName = "BloxFruitsScripts", FileName = "UI_Config" }
-}
+})
 
 -- Variables Globales
 local player = game.Players.LocalPlayer
 local isAutoFarmEnabled = false
-local isAutoChestEnabled = false
-local isAutoFruitEnabled = false
-local isAutoFactoryEnabled = false
-local isAutoBountyEnabled = false
-local isAimbotEnabled = false
+local isAutoFarmNearestEnabled = false
+local autoFarmDelay = 1
+local m1Delay = 0.1
 
--- Fonction d'Aimbot
-local function aimbot()
-    local mouse = player:GetMouse()
-    while isAimbotEnabled do
-        wait()
-        local closestEnemy = nil
-        local shortestDistance = math.huge
+-- Fonction d'Auto Farm
+local function autoFarm()
+    while isAutoFarmEnabled do
+        wait(autoFarmDelay)
+        -- Implémentez la logique de l'Auto Farm ici
+    end
+end
 
-        for _, enemy in pairs(workspace.Enemies:GetChildren()) do
-            if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
-                local distance = (enemy.HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
-                if distance < shortestDistance then
-                    shortestDistance = distance
-                    closestEnemy = enemy
-                end
-            end
-        end
-
-        if closestEnemy then
-            mouse.Hit = closestEnemy.HumanoidRootPart.CFrame
-        end
+-- Fonction d'Auto Farm Nearest
+local function autoFarmNearest()
+    while isAutoFarmNearestEnabled do
+        wait(autoFarmDelay)
+        -- Implémentez la logique de l'Auto Farm Nearest ici
     end
 end
 
@@ -54,50 +62,28 @@ end
 
 -- Création des Tabs et Sections
 local MainTab = Window:CreateTab("Main", 4483362458) -- Icon ID
-local FarmingSection = MainTab:CreateSection("Auto-Farm Options")
-local ChestSection = MainTab:CreateSection("Auto-Chest Options")
-local FruitSection = MainTab:CreateSection("Auto-Fruit Options")
-local FactorySection = MainTab:CreateSection("Auto-Factory Options")
-local BountySection = MainTab:CreateSection("Auto-Bounty Options")
 local TeleportSection = MainTab:CreateSection("Teleport Options")
 
-local AimbotTab = Window:CreateTab("Aimbot", 4483362458)
-local AimbotSection = AimbotTab:CreateSection("Aimbot Options")
+local BloxFruitTab = Window:CreateTab("Blox Fruit", 4483362458)
+local BloxFruitSection = BloxFruitTab:CreateSection("Blox Fruit Options")
 
--- UI Farming
-FarmingSection:CreateToggle("Auto-Farm", "Active l'Auto-Farm rapide", function(state)
+-- UI Blox Fruit
+BloxFruitSection:CreateToggle("Auto-Farm", "Active l'Auto-Farm", function(state)
     isAutoFarmEnabled = state
     if state then autoFarm() end
 end)
 
--- UI Chest
-ChestSection:CreateToggle("Auto-Chest", "Active la collecte automatique des coffres", function(state)
-    isAutoChestEnabled = state
-    if state then autoChest() end
+BloxFruitSection:CreateToggle("Auto-Farm Nearest", "Active l'Auto-Farm le plus proche", function(state)
+    isAutoFarmNearestEnabled = state
+    if state then autoFarmNearest() end
 end)
 
--- UI Fruits
-FruitSection:CreateToggle("Auto-Find Fruit", "Cherche et téléporte automatiquement vers les fruits", function(state)
-    isAutoFruitEnabled = state
-    if state then autoFindFruit() end
+BloxFruitSection:CreateSlider("Auto Farm Delay", "Définir le délai de l'Auto Farm (secondes)", 0.1, 5, autoFarmDelay, function(value)
+    autoFarmDelay = value
 end)
 
--- UI Factory
-FactorySection:CreateToggle("Auto-Factory", "Active l'Auto-Factory", function(state)
-    isAutoFactoryEnabled = state
-    if state then autoFactory() end
-end)
-
--- UI Bounty
-BountySection:CreateToggle("Auto-Bounty", "Active l'Auto-Bounty", function(state)
-    isAutoBountyEnabled = state
-    if state then autoBounty() end
-end)
-
--- Aimbot UI
-AimbotSection:CreateToggle("Aimbot", "Active l'Aimbot sur les ennemis proches", function(state)
-    isAimbotEnabled = state
-    if state then aimbot() end
+BloxFruitSection:CreateSlider("M1 Delay", "Définir le délai de M1 (secondes)", 0.1, 2, m1Delay, function(value)
+    m1Delay = value
 end)
 
 -- UI Téléportations
