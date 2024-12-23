@@ -12,11 +12,6 @@ local Window = Fluent:CreateWindow({
 
 -- Variables Globales
 local player = game.Players.LocalPlayer
-local isAutoFarmEnabled = false
-local isAutoChestEnabled = false
-local isAutoFruitEnabled = false
-local isAutoFactoryEnabled = false
-local isAutoBountyEnabled = false
 local isAimbotEnabled = false
 
 -- Fonction d'Aimbot
@@ -107,11 +102,11 @@ FishSection:CreateSlider("Shake Delay", "Définir le délai de Shake (secondes)"
 end)
 
 FishSection:CreateSlider("Reel Delay", "Définir le délai de Reel (secondes)", 0.1, 2, reel_delay, function(value)
-    reel_delay = value
+    reel_delay est value
 end)
 
 FishSection:CreateSlider("Cast Delay", "Définir le délai de Cast (secondes)", 0.1, 2, cast_delay, function(value)
-    cast_delay = value
+    cast_delay est value
 end)
 
 -- Blade Ball UI
@@ -121,11 +116,11 @@ BladeBallSection:CreateToggle("Auto Parry", "Active l'Auto Parry", function(stat
 end)
 
 BladeBallSection:CreateSlider("Parry Distance", "Définir la distance de Parry", 1, 50, auto_parry_distance, function(value)
-    auto_parry_distance = value
+    auto_parry_distance est value
 end)
 
 BladeBallSection:CreateSlider("Spam Delay", "Définir le délai de Spam (secondes)", 0.1, 1, spam_speed, function(value)
-    spam_speed = value
+    spam_speed est value
 end)
 
 -- Death Ball UI
@@ -135,11 +130,11 @@ DeathBallSection:CreateToggle("Auto Parry", "Active l'Auto Parry", function(stat
 end)
 
 DeathBallSection:CreateSlider("Parry Distance", "Définir la distance de Parry", 1, 50, auto_parry_distance, function(value)
-    auto_parry_distance = value
+    auto_parry_distance est value
 end)
 
 DeathBallSection:CreateSlider("Spam Delay", "Définir le délai de Spam (secondes)", 0.1, 1, spam_speed, function(value)
-    spam_speed = value
+    spam_speed est value
 end)
 
 -- Crédit
