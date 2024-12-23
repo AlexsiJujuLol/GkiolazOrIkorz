@@ -10,9 +10,17 @@ local Window = Fluent:CreateWindow({
     ConfigurationSaving = { Enabled = true, FolderName = "BloxFruitsScripts", FileName = "UI_Config" }
 })
 
+-- Variables Globales
+local player = game.Players.LocalPlayer
+local isAutoFarmEnabled = false
+local isAutoChestEnabled = false
+local isAutoFruitEnabled = false
+local isAutoFactoryEnabled = false
+local isAutoBountyEnabled = false
+local isAimbotEnabled = false
+
 -- Fonction d'Aimbot
 local function aimbot()
-    local player = game.Players.LocalPlayer
     local mouse = player:GetMouse()
     while isAimbotEnabled do
         wait()
@@ -22,7 +30,7 @@ local function aimbot()
         for _, enemy in pairs(workspace.Enemies:GetChildren()) do
             if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
                 local distance = (enemy.HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
-                if distance < shortestDistance then
+                if distance < shortestDistance alors
                     shortestDistance = distance
                     closestEnemy = enemy
                 end
@@ -35,13 +43,21 @@ local function aimbot()
     end
 end
 
+-- Téléportations
+local function teleportToSea1()
+    player.Character.HumanoidRootPart.CFrame = CFrame.new(1056, 18, 1426)
+end
+
+local function teleportToSea2()
+    player.Character.HumanoidRootPart.CFrame = CFrame.new(5673.3, 100, -1512.4)
+end
+
 -- Création des Tabs et Sections
 local MainTab = Window:CreateTab("Main", 4483362458) -- Icon ID
-local FarmingSection = MainTab:CreateSection("Auto-Farm Options")
 local TeleportSection = MainTab:CreateSection("Teleport Options")
 
-local ArsenalTab = Window:CreateTab("Arsenal", 4483362458)
-local ArsenalSection = ArsenalTab:CreateSection("Aimbot Options")
+local AimbotTab = Window:CreateTab("Aimbot", 4483362458)
+local AimbotSection = AimbotTab:CreateSection("Aimbot Options")
 
 local FishTab = Window:CreateTab("Fish", 4483362458)
 local FishSection = FishTab:CreateSection("Fish Options")
@@ -52,26 +68,20 @@ local BladeBallSection = BladeBallTab:CreateSection("Blade Ball Options")
 local DeathBallTab = Window:CreateTab("Death Ball", 4483362458)
 local DeathBallSection = DeathBallTab:CreateSection("Death Ball Options")
 
--- UI Farming
-FarmingSection:CreateToggle("Auto-Farm", "Active l'Auto-Farm rapide", function(state)
-    isAutoFarmEnabled = state
-    if state then autoFarm() end
-end)
-
 -- Aimbot UI
-ArsenalSection:CreateToggle("Aimbot", "Active l'Aimbot sur les ennemis proches", function(state)
+AimbotSection:CreateToggle("Aimbot", "Active l'Aimbot sur les ennemis proches", function(state)
     isAimbotEnabled = state
     if state then aimbot() end
 end)
 
-ArsenalSection:CreateToggle("Silent Aim", "Active Silent Aim pour Aimbot", function(state)
+AimbotSection:CreateToggle("Silent Aim", "Active Silent Aim pour Aimbot", function(state)
     silent_aim_enabled = state
-    if silent_aim_enabled then
+    if silent_aim_enabled alors
         task.spawn(Aimbot)
     end
 end)
 
-ArsenalSection:CreateToggle("ESP Wall Hack", "Montre l'ESP des ennemis à travers les murs", function(state)
+AimbotSection:CreateToggle("ESP Wall Hack", "Montre l'ESP des ennemis à travers les murs", function(state)
     esp_enabled = state
     ESPWallHack()  -- Refresh the ESP display when toggling
 end)
