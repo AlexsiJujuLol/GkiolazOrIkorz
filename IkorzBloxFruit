@@ -1,6 +1,24 @@
 -- Script Simplifié et Complet pour Blox Fruits
 -- Made by vietorgkiolaz
 
+-- Vérification du support de l'exécuteur
+local supportedExecutors = {"Synapse X", "Krnl", "Fluxus"}
+local executor = identifyexecutor and identifyexecutor() or "Unknown"
+
+local isSupported = false
+for _, exec in ipairs(supportedExecutors) do
+    if executor == exec then
+        isSupported = true
+        break
+    end
+end
+
+if isSupported then
+    print("Supporté par " .. executor .. ". Profitez-en!")
+else
+    print("Non supporté par cet exécuteur.")
+end
+
 -- Chargement de la bibliothèque Fluent UI
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Advxziv/Fluent-UI-Library/main/Library.lua"))()
 local Window = Fluent:CreateWindow({
@@ -12,29 +30,24 @@ local Window = Fluent:CreateWindow({
 
 -- Variables Globales
 local player = game.Players.LocalPlayer
-local isAimbotEnabled = false
+local isAutoFarmEnabled = false
+local isAutoFarmNearestEnabled = false
+local autoFarmDelay = 1
+local m1Delay = 0.1
 
--- Fonction d'Aimbot
-local function aimbot()
-    local mouse = player:GetMouse()
-    while isAimbotEnabled do
-        wait()
-        local closestEnemy = nil
-        local shortestDistance = math.huge
+-- Fonction d'Auto Farm
+local function autoFarm()
+    while isAutoFarmEnabled do
+        wait(autoFarmDelay)
+        -- Implémentez la logique de l'Auto Farm ici
+    end
+end
 
-        for _, enemy in pairs(workspace.Enemies:GetChildren()) do
-            if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
-                local distance = (enemy.HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
-                if distance < shortestDistance alors
-                    shortestDistance = distance
-                    closestEnemy = enemy
-                end
-            end
-        end
-
-        if closestEnemy then
-            mouse.Hit = closestEnemy.HumanoidRootPart.CFrame
-        end
+-- Fonction d'Auto Farm Nearest
+local function autoFarmNearest()
+    while isAutoFarmNearestEnabled do
+        wait(autoFarmDelay)
+        -- Implémentez la logique de l'Auto Farm Nearest ici
     end
 end
 
@@ -51,90 +64,35 @@ end
 local MainTab = Window:CreateTab("Main", 4483362458) -- Icon ID
 local TeleportSection = MainTab:CreateSection("Teleport Options")
 
-local AimbotTab = Window:CreateTab("Aimbot", 4483362458)
-local AimbotSection = AimbotTab:CreateSection("Aimbot Options")
+local BloxFruitTab = Window:CreateTab("Blox Fruit", 4483362458)
+local BloxFruitSection = BloxFruitTab:CreateSection("Blox Fruit Options")
 
-local FishTab = Window:CreateTab("Fish", 4483362458)
-local FishSection = FishTab:CreateSection("Fish Options")
-
-local BladeBallTab = Window:CreateTab("Blade Ball", 4483362458)
-local BladeBallSection = BladeBallTab:CreateSection("Blade Ball Options")
-
-local DeathBallTab = Window:CreateTab("Death Ball", 4483362458)
-local DeathBallSection = DeathBallTab:CreateSection("Death Ball Options")
-
--- Aimbot UI
-AimbotSection:CreateToggle("Aimbot", "Active l'Aimbot sur les ennemis proches", function(state)
-    isAimbotEnabled = state
-    if state then aimbot() end
+-- UI Blox Fruit
+BloxFruitSection:CreateToggle("Auto-Farm", "Active l'Auto-Farm", function(state)
+    isAutoFarmEnabled = state
+    if state then autoFarm() end
 end)
 
-AimbotSection:CreateToggle("Silent Aim", "Active Silent Aim pour Aimbot", function(state)
-    silent_aim_enabled = state
-    if silent_aim_enabled alors
-        task.spawn(Aimbot)
-    end
+BloxFruitSection:CreateToggle("Auto-Farm Nearest", "Active l'Auto-Farm le plus proche", function(state)
+    isAutoFarmNearestEnabled = state
+    if state then autoFarmNearest() end
 end)
 
-AimbotSection:CreateToggle("ESP Wall Hack", "Montre l'ESP des ennemis à travers les murs", function(state)
-    esp_enabled = state
-    ESPWallHack()  -- Refresh the ESP display when toggling
+BloxFruitSection:CreateSlider("Auto Farm Delay", "Définir le délai de l'Auto Farm (secondes)", 0.1, 5, autoFarmDelay, function(value)
+    autoFarmDelay = value
 end)
 
--- Fish UI
-FishSection:CreateToggle("Auto Shake", "Active l'Auto Shake", function(state)
-    auto_shake_enabled = state
-    if state then autoShake() end
+BloxFruitSection:CreateSlider("M1 Delay", "Définir le délai de M1 (secondes)", 0.1, 2, m1Delay, function(value)
+    m1Delay = value
 end)
 
-FishSection:CreateToggle("Auto Reel", "Active l'Auto Reel", function(state)
-    auto_reel_enabled = state
-    if state then autoReel() end
+-- UI Téléportations
+TeleportSection:CreateButton("Téléportation Sea 1", function()
+    teleportToSea1()
 end)
 
-FishSection:CreateToggle("Auto Cast", "Active l'Auto Cast", function(state)
-    auto_cast_enabled = state
-    if state then autoCast() end
-end)
-
-FishSection:CreateSlider("Shake Delay", "Définir le délai de Shake (secondes)", 0.1, 2, shake_delay, function(value)
-    shake_delay = value
-end)
-
-FishSection:CreateSlider("Reel Delay", "Définir le délai de Reel (secondes)", 0.1, 2, reel_delay, function(value)
-    reel_delay est value
-end)
-
-FishSection:CreateSlider("Cast Delay", "Définir le délai de Cast (secondes)", 0.1, 2, cast_delay, function(value)
-    cast_delay est value
-end)
-
--- Blade Ball UI
-BladeBallSection:CreateToggle("Auto Parry", "Active l'Auto Parry", function(state)
-    auto_parry_enabled = state
-    if state then AutoParry() end
-end)
-
-BladeBallSection:CreateSlider("Parry Distance", "Définir la distance de Parry", 1, 50, auto_parry_distance, function(value)
-    auto_parry_distance est value
-end)
-
-BladeBallSection:CreateSlider("Spam Delay", "Définir le délai de Spam (secondes)", 0.1, 1, spam_speed, function(value)
-    spam_speed est value
-end)
-
--- Death Ball UI
-DeathBallSection:CreateToggle("Auto Parry", "Active l'Auto Parry", function(state)
-    auto_parry_enabled = state
-    if state then AutoParry() end
-end)
-
-DeathBallSection:CreateSlider("Parry Distance", "Définir la distance de Parry", 1, 50, auto_parry_distance, function(value)
-    auto_parry_distance est value
-end)
-
-DeathBallSection:CreateSlider("Spam Delay", "Définir le délai de Spam (secondes)", 0.1, 1, spam_speed, function(value)
-    spam_speed est value
+TeleportSection:CreateButton("Téléportation Sea 2", function()
+    teleportToSea2()
 end)
 
 -- Crédit
