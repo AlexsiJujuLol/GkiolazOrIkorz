@@ -1,194 +1,154 @@
-local Library = loadstring(game:HttpGet('https://raw.githubusercontent.com/LuauCloud/Byte/refs/heads/main/Utils/Library.lua'))()
+local IKORZ = loadstring(game:HttpGet('https://raw.githubusercontent.com/LuauCloud/Byte/refs/heads/main/Utils/Library.lua'))()
 
-local Library_Window = Library.Add_Window('Acceptions')
-
--- Create a Tab for "Arsenal"
-local Arsenal_Tab = Library_Window.Create_Tab({
-    name = 'Arsenal',
+-- Create the UI
+local IKORZ_Window = IKORZ.Add_Window('Acceptions')
+local IKORZ_Tab = IKORZ_Window.Create_Tab({
+    name = 'IKORZ',
     icon = 'rbxassetid://'
 })
 
--- Create a Section inside the Arsenal Tab
-local Arsenal_Section = Arsenal_Tab.Create_Section()
+local IKORZ_Section = IKORZ_Tab.Create_Section()
 
--- Variables to manage the feature states
-local aimbotActive = false
-local silentAimbotActive = false
-local espActive = false
-local wallhackActive = false
-local triggerbotActive = false
+-- Variables for UI state
+local uiVisible = true -- UI is visible by default
+local userInputService = game:GetService("UserInputService")
 
--- Aimbot Toggle
-local Aimbot = Arsenal_Section.Create_Toggle({
-    name = 'Aimbot',
-    flag = 'Aimbot',
-    callback = function(state)
-        aimbotActive = state
+-- Toggle UI visibility
+userInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.P then -- Change "P" to your desired toggle key
+        uiVisible = not uiVisible
+        IKORZ_Window:SetVisible(uiVisible)
+        print("[IKORZ] UI " .. (uiVisible and "Opened" or "Closed"))
     end
-})
-
--- Silent Aimbot Toggle
-local Silent_Aimbot = Arsenal_Section.Create_Toggle({
-    name = 'Silent Aimbot',
-    flag = 'Silent_Aimbot',
-    callback = function(state)
-        silentAimbotActive = state
-    end
-})
-
--- ESP Toggle
-local ESP = Arsenal_Section.Create_Toggle({
-    name = 'ESP',
-    flag = 'ESP',
-    callback = function(state)
-        espActive = state
-    end
-})
-
--- Wallhack Toggle
-local Wallhack = Arsenal_Section.Create_Toggle({
-    name = 'Wallhack',
-    flag = 'Wallhack',
-    callback = function(state)
-        wallhackActive = state
-    end
-})
-
--- Triggerbot Toggle
-local Triggerbot = Arsenal_Section.Create_Toggle({
-    name = 'Triggerbot',
-    flag = 'Triggerbot',
-    callback = function(state)
-        triggerbotActive = state
-    end
-})
-
--- Find closest enemy (optimize by caching the closest enemy)
-local closestEnemy = nil
-local lastUpdate = tick()
-
-function findClosestEnemy()
-    local minDistance = math.huge
-    local target = nil
-
-    for _, player in pairs(game.Players:GetPlayers()) do
-        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player ~= game.Players.LocalPlayer then
-            local distance = (player.Character.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
-            if distance < minDistance then
-                minDistance = distance
-                target = player
-            end
-        end
-    end
-
-    return target
-end
-
--- Aimbot Logic
-function aimbotLogic()
-    if aimbotActive and tick() - lastUpdate > 0.1 then  -- Update at a controlled rate
-        lastUpdate = tick()
-        local target = findClosestEnemy()
-        if target then
-            -- Adjust aim smoothly to the target's position
-            local targetPos = target.Character.HumanoidRootPart.Position
-            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(targetPos)
-        end
-    end
-end
-
--- Silent Aimbot Logic
-function silentAimbotLogic()
-    if silentAimbotActive and tick() - lastUpdate > 0.1 then  -- Update at a controlled rate
-        lastUpdate = tick()
-        local target = findClosestEnemy()
-        if target then
-            -- Smoothly adjust the aim
-            local targetPos = target.Character.HumanoidRootPart.Position
-            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(targetPos)
-        end
-    end
-end
-
--- ESP Logic
-local espBoxes = {}  -- Cache the ESP boxes for efficiency
-function espLogic()
-    if espActive then
-        -- Loop through each player and update their ESP box if necessary
-        for _, player in pairs(game.Players:GetPlayers()) do
-            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                local head = player.Character:FindFirstChild("Head")
-                if head then
-                    if not espBoxes[player] then
-                        -- Create a new ESP box only if it doesn't exist
-                        local box = Instance.new("BillboardGui")
-                        box.Adornee = head
-                        box.Size = UDim2.new(0, 100, 0, 100)
-                        box.StudsOffset = Vector3.new(0, 2, 0)
-                        box.AlwaysOnTop = true
-                        box.Parent = game.CoreGui
-
-                        local frame = Instance.new("Frame")
-                        frame.Parent = box
-                        frame.Size = UDim2.new(1, 0, 1, 0)
-                        frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-                        frame.BackgroundTransparency = 0.5
-
-                        espBoxes[player] = box  -- Cache the ESP box
-                    end
-                end
-            end
-        end
-    else
-        -- Clear all ESP boxes when ESP is disabled
-        for _, box in pairs(espBoxes) do
-            box:Destroy()
-        end
-        espBoxes = {}  -- Clear the cache
-    end
-end
-
--- Wallhack Logic
-function wallhackLogic()
-    if wallhackActive then
-        for _, part in pairs(workspace:GetDescendants()) do
-            if part:IsA("Part") or part:IsA("MeshPart") then
-                part.Material = Enum.Material.SmoothPlastic
-                part.Transparency = 0.2
-                part.CanCollide = false
-            end
-        end
-    else
-        for _, part in pairs(workspace:GetDescendants()) do
-            if part:IsA("Part") or part:IsA("MeshPart") then
-                part.Material = Enum.Material.Plastic
-                part.Transparency = 0
-                part.CanCollide = true
-            end
-        end
-    end
-end
-
--- Triggerbot Logic
-function triggerbotLogic()
-    if triggerbotActive then
-        local target = findClosestEnemy()
-        if target then
-            local ray = Ray.new(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, target.Character.HumanoidRootPart.Position)
-            local hit, position = game.Workspace:FindPartOnRay(ray, game.Players.LocalPlayer.Character)
-            if hit and hit.Parent == target.Character then
-                -- Simulate shooting or perform a shoot action
-                game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer("triggered", "All")
-            end
-        end
-    end
-end
-
--- Use RunService Heartbeat for smoother updates
-game:GetService('RunService').Heartbeat:Connect(function()
-    aimbotLogic()
-    silentAimbotLogic()
-    espLogic()
-    wallhackLogic()
-    triggerbotLogic()
 end)
+
+-- Auto Parry Variables
+local autoParryEnabled = false
+local selectedParryMode = 'Custom' -- Default parry mode
+local runService = game:GetService("RunService")
+local playerService = game:GetService("Players")
+local localPlayer = playerService.LocalPlayer
+local connection
+
+-- Auto Parry Toggle
+IKORZ_Section.Create_DropToggle({
+    name = 'Auto Parry',
+    section = 'left',
+    flag = 'Auto_Parry',
+    options = {'Custom', 'Random', 'Backwards'},
+    callback = function(state)
+        autoParryEnabled = state
+        if state then
+            print('[IKORZ] Auto Parry Enabled')
+            enableAutoParry()
+        else
+            print('[IKORZ] Auto Parry Disabled')
+            disableAutoParry()
+        end
+    end,
+    callback2 = function(selected)
+        selectedParryMode = selected
+        print('[IKORZ] Parry Mode Selected:', selected)
+    end
+})
+
+-- Enable Auto Parry
+local function enableAutoParry()
+    if connection then connection:Disconnect() end
+
+    connection = runService.RenderStepped:Connect(function()
+        if not autoParryEnabled then return end
+        handleAutoParryLogic()
+    end)
+
+    print('[IKORZ] Auto Parry Monitoring Started')
+end
+
+-- Disable Auto Parry
+local function disableAutoParry()
+    if connection then
+        connection:Disconnect()
+        connection = nil
+    end
+    print('[IKORZ] Auto Parry Monitoring Stopped')
+end
+
+-- Handle Auto Parry Logic
+local function handleAutoParryLogic()
+    local character = localPlayer.Character
+    if not character then return end
+
+    local humanoid = character:FindFirstChild("Humanoid")
+    local rootPart = character:FindFirstChild("HumanoidRootPart")
+    if not humanoid or humanoid.Health <= 0 or not rootPart then return end
+
+    -- Detect incoming attacks
+    local attackIncoming = detectIncomingAttack(rootPart.Position)
+    if attackIncoming then
+        performParry()
+    end
+end
+
+-- Detect Incoming Attack using Region3
+local function detectIncomingAttack(playerPosition)
+    -- Define Region3 around the player
+    local regionSize = Vector3.new(15, 15, 15) -- Region size (customize as needed)
+    local region = Region3.new(
+        playerPosition - (regionSize / 2),
+        playerPosition + (regionSize / 2)
+    )
+
+    -- Get all parts within the region
+    local nearbyParts = workspace:FindPartsInRegion3WithIgnoreList(
+        region,
+        {localPlayer.Character}, -- Ignore the player's own character
+        10 -- Max parts to scan
+    )
+
+    for _, part in pairs(nearbyParts) do
+        -- Check for specific projectiles or enemy indicators
+        if part.Name == "Ball" or part:FindFirstChild("AttackSignal") then
+            return true -- Incoming attack detected
+        end
+    end
+
+    return false
+end
+
+-- Perform Parry
+local function performParry()
+    if selectedParryMode == 'Custom' then
+        print('[IKORZ] Executing Custom Parry')
+        customParryLogic()
+    elseif selectedParryMode == 'Random' then
+        print('[IKORZ] Executing Random Parry')
+        randomParryLogic()
+    elseif selectedParryMode == 'Backwards' then
+        print('[IKORZ] Executing Backwards Parry')
+        backwardsParryLogic()
+    end
+end
+
+-- Custom Parry Logic
+local function customParryLogic()
+    -- Add your custom parry logic
+    print('[IKORZ] Custom Parry Logic Executed')
+end
+
+-- Random Parry Logic
+local function randomParryLogic()
+    local randomAngle = math.random(-180, 180)
+    print('[IKORZ] Random Angle:', randomAngle)
+    -- Adjust direction or angle randomly
+end
+
+-- Backwards Parry Logic
+local function backwardsParryLogic()
+    local character = localPlayer.Character
+    local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+    if rootPart then
+        rootPart.CFrame = rootPart.CFrame * CFrame.Angles(0, math.rad(180), 0)
+        print('[IKORZ] Parried Backwards')
+    end
+end
