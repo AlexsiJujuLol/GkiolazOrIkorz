@@ -1,115 +1,194 @@
--- Script Simplifié et Complet pour Blox Fruits
--- Made by vietorgkiolaz
+local Library = loadstring(game:HttpGet('https://raw.githubusercontent.com/LuauCloud/Byte/refs/heads/main/Utils/Library.lua'))()
 
--- Chargement de la bibliothèque Fluent UI
-local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Advxziv/Fluent-UI-Library/main/Library.lua"))()
-local Window = Fluent:CreateWindow({
-    Name = "Blox Fruits Simplified UI",
-    LoadingTitle = "Chargement du Script",
-    LoadingSubtitle = "by vietorgkiolaz",
-    ConfigurationSaving = { Enabled = true, FolderName = "BloxFruitsScripts", FileName = "UI_Config" }
-}
+local Library_Window = Library.Add_Window('Acceptions')
 
--- Variables Globales
-local player = game.Players.LocalPlayer
-local isAutoFarmEnabled = false
-local isAutoChestEnabled = false
-local isAutoFruitEnabled = false
-local isAutoFactoryEnabled = false
-local isAutoBountyEnabled = false
-local isAimbotEnabled = false
+-- Create a Tab for "Arsenal"
+local Arsenal_Tab = Library_Window.Create_Tab({
+    name = 'Arsenal',
+    icon = 'rbxassetid://'
+})
 
--- Fonction d'Aimbot
-local function aimbot()
-    local mouse = player:GetMouse()
-    while isAimbotEnabled do
-        wait()
-        local closestEnemy = nil
-        local shortestDistance = math.huge
+-- Create a Section inside the Arsenal Tab
+local Arsenal_Section = Arsenal_Tab.Create_Section()
 
-        for _, enemy in pairs(workspace.Enemies:GetChildren()) do
-            if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
-                local distance = (enemy.HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
-                if distance < shortestDistance then
-                    shortestDistance = distance
-                    closestEnemy = enemy
-                end
+-- Variables to manage the feature states
+local aimbotActive = false
+local silentAimbotActive = false
+local espActive = false
+local wallhackActive = false
+local triggerbotActive = false
+
+-- Aimbot Toggle
+local Aimbot = Arsenal_Section.Create_Toggle({
+    name = 'Aimbot',
+    flag = 'Aimbot',
+    callback = function(state)
+        aimbotActive = state
+    end
+})
+
+-- Silent Aimbot Toggle
+local Silent_Aimbot = Arsenal_Section.Create_Toggle({
+    name = 'Silent Aimbot',
+    flag = 'Silent_Aimbot',
+    callback = function(state)
+        silentAimbotActive = state
+    end
+})
+
+-- ESP Toggle
+local ESP = Arsenal_Section.Create_Toggle({
+    name = 'ESP',
+    flag = 'ESP',
+    callback = function(state)
+        espActive = state
+    end
+})
+
+-- Wallhack Toggle
+local Wallhack = Arsenal_Section.Create_Toggle({
+    name = 'Wallhack',
+    flag = 'Wallhack',
+    callback = function(state)
+        wallhackActive = state
+    end
+})
+
+-- Triggerbot Toggle
+local Triggerbot = Arsenal_Section.Create_Toggle({
+    name = 'Triggerbot',
+    flag = 'Triggerbot',
+    callback = function(state)
+        triggerbotActive = state
+    end
+})
+
+-- Find closest enemy (optimize by caching the closest enemy)
+local closestEnemy = nil
+local lastUpdate = tick()
+
+function findClosestEnemy()
+    local minDistance = math.huge
+    local target = nil
+
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player ~= game.Players.LocalPlayer then
+            local distance = (player.Character.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+            if distance < minDistance then
+                minDistance = distance
+                target = player
             end
         end
+    end
 
-        if closestEnemy then
-            mouse.Hit = closestEnemy.HumanoidRootPart.CFrame
+    return target
+end
+
+-- Aimbot Logic
+function aimbotLogic()
+    if aimbotActive and tick() - lastUpdate > 0.1 then  -- Update at a controlled rate
+        lastUpdate = tick()
+        local target = findClosestEnemy()
+        if target then
+            -- Adjust aim smoothly to the target's position
+            local targetPos = target.Character.HumanoidRootPart.Position
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(targetPos)
         end
     end
 end
 
--- Téléportations
-local function teleportToSea1()
-    player.Character.HumanoidRootPart.CFrame = CFrame.new(1056, 18, 1426)
+-- Silent Aimbot Logic
+function silentAimbotLogic()
+    if silentAimbotActive and tick() - lastUpdate > 0.1 then  -- Update at a controlled rate
+        lastUpdate = tick()
+        local target = findClosestEnemy()
+        if target then
+            -- Smoothly adjust the aim
+            local targetPos = target.Character.HumanoidRootPart.Position
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(targetPos)
+        end
+    end
 end
 
-local function teleportToSea2()
-    player.Character.HumanoidRootPart.CFrame = CFrame.new(5673.3, 100, -1512.4)
+-- ESP Logic
+local espBoxes = {}  -- Cache the ESP boxes for efficiency
+function espLogic()
+    if espActive then
+        -- Loop through each player and update their ESP box if necessary
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local head = player.Character:FindFirstChild("Head")
+                if head then
+                    if not espBoxes[player] then
+                        -- Create a new ESP box only if it doesn't exist
+                        local box = Instance.new("BillboardGui")
+                        box.Adornee = head
+                        box.Size = UDim2.new(0, 100, 0, 100)
+                        box.StudsOffset = Vector3.new(0, 2, 0)
+                        box.AlwaysOnTop = true
+                        box.Parent = game.CoreGui
+
+                        local frame = Instance.new("Frame")
+                        frame.Parent = box
+                        frame.Size = UDim2.new(1, 0, 1, 0)
+                        frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+                        frame.BackgroundTransparency = 0.5
+
+                        espBoxes[player] = box  -- Cache the ESP box
+                    end
+                end
+            end
+        end
+    else
+        -- Clear all ESP boxes when ESP is disabled
+        for _, box in pairs(espBoxes) do
+            box:Destroy()
+        end
+        espBoxes = {}  -- Clear the cache
+    end
 end
 
--- Création des Tabs et Sections
-local MainTab = Window:CreateTab("Main", 4483362458) -- Icon ID
-local FarmingSection = MainTab:CreateSection("Auto-Farm Options")
-local ChestSection = MainTab:CreateSection("Auto-Chest Options")
-local FruitSection = MainTab:CreateSection("Auto-Fruit Options")
-local FactorySection = MainTab:CreateSection("Auto-Factory Options")
-local BountySection = MainTab:CreateSection("Auto-Bounty Options")
-local TeleportSection = MainTab:CreateSection("Teleport Options")
+-- Wallhack Logic
+function wallhackLogic()
+    if wallhackActive then
+        for _, part in pairs(workspace:GetDescendants()) do
+            if part:IsA("Part") or part:IsA("MeshPart") then
+                part.Material = Enum.Material.SmoothPlastic
+                part.Transparency = 0.2
+                part.CanCollide = false
+            end
+        end
+    else
+        for _, part in pairs(workspace:GetDescendants()) do
+            if part:IsA("Part") or part:IsA("MeshPart") then
+                part.Material = Enum.Material.Plastic
+                part.Transparency = 0
+                part.CanCollide = true
+            end
+        end
+    end
+end
 
-local AimbotTab = Window:CreateTab("Aimbot", 4483362458)
-local AimbotSection = AimbotTab:CreateSection("Aimbot Options")
+-- Triggerbot Logic
+function triggerbotLogic()
+    if triggerbotActive then
+        local target = findClosestEnemy()
+        if target then
+            local ray = Ray.new(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, target.Character.HumanoidRootPart.Position)
+            local hit, position = game.Workspace:FindPartOnRay(ray, game.Players.LocalPlayer.Character)
+            if hit and hit.Parent == target.Character then
+                -- Simulate shooting or perform a shoot action
+                game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer("triggered", "All")
+            end
+        end
+    end
+end
 
--- UI Farming
-FarmingSection:CreateToggle("Auto-Farm", "Active l'Auto-Farm rapide", function(state)
-    isAutoFarmEnabled = state
-    if state then autoFarm() end
+-- Use RunService Heartbeat for smoother updates
+game:GetService('RunService').Heartbeat:Connect(function()
+    aimbotLogic()
+    silentAimbotLogic()
+    espLogic()
+    wallhackLogic()
+    triggerbotLogic()
 end)
-
--- UI Chest
-ChestSection:CreateToggle("Auto-Chest", "Active la collecte automatique des coffres", function(state)
-    isAutoChestEnabled = state
-    if state then autoChest() end
-end)
-
--- UI Fruits
-FruitSection:CreateToggle("Auto-Find Fruit", "Cherche et téléporte automatiquement vers les fruits", function(state)
-    isAutoFruitEnabled = state
-    if state then autoFindFruit() end
-end)
-
--- UI Factory
-FactorySection:CreateToggle("Auto-Factory", "Active l'Auto-Factory", function(state)
-    isAutoFactoryEnabled = state
-    if state then autoFactory() end
-end)
-
--- UI Bounty
-BountySection:CreateToggle("Auto-Bounty", "Active l'Auto-Bounty", function(state)
-    isAutoBountyEnabled = state
-    if state then autoBounty() end
-end)
-
--- Aimbot UI
-AimbotSection:CreateToggle("Aimbot", "Active l'Aimbot sur les ennemis proches", function(state)
-    isAimbotEnabled = state
-    if state then aimbot() end
-end)
-
--- UI Téléportations
-TeleportSection:CreateButton("Téléportation Sea 1", function()
-    teleportToSea1()
-end)
-
-TeleportSection:CreateButton("Téléportation Sea 2", function()
-    teleportToSea2()
-end)
-
--- Crédit
-local CreditTab = Window:CreateTab("Credits", 4483362458)
-CreditTab:CreateSection("Made by vietorgkiolaz")
-CreditTab:CreateLabel("UI Fluent Library")
