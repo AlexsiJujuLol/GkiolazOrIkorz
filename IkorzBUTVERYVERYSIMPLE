@@ -1,2 +1,50 @@
-ToggleKey = Enum.KeyCode.Z;
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Rylvns/EnvisionExploits/master/game-scripts/Blade%20Ball/source.lua"))();
+--[[
+	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
+]]
+-- Credit to dendenzzz and Cloud UI Library
+
+-- Initialize Auto-Parry
+getgenv().autoparry = false
+
+-- Required Services
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer or Players.PlayerAdded:Wait()
+
+-- Load Cloud UI Library
+local success, Library = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/LuauCloud/Byte/refs/heads/main/Utils/Library.lua"))()
+end)
+
+if not success then
+    warn("Failed to load Cloud UI Library: " .. tostring(Library))
+    return
+end
+
+-- Create UI Window
+local Library_Window = Library.Add_Window("Auto Parry Settings")
+
+-- UI Setup
+local BladeBall_Tab = Library_Window.Create_Tab({ name = "Auto-Parry", icon = "rbxassetid://6023426975" })
+local BladeBall_Section = BladeBall_Tab.Create_Section({ name = "Settings" })
+
+-- Auto-Parry Toggle
+BladeBall_Section.Create_Toggle({
+    name = "Enable Auto-Parry",
+    flag = "Enable_Auto_Parry",
+    callback = function(state)
+        getgenv().autoparry = state
+        print("Auto-Parry:", state and "Enabled" or "Disabled")
+
+        -- Activate the provided loadstring when Auto-Parry is enabled
+        if state then
+            pcall(function()
+                loadstring(game:HttpGet("https://scriptblox.com/raw/UPD-Blade-Ball-op-autoparry-with-visualizer-8652"))()
+            end)
+        end
+    end,
+})
+
+-- Show UI
+Library_Window:Show()
+
+print("Auto-Parry Script Loaded with Cloud UI!")
