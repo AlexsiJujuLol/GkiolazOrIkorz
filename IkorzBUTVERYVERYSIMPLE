@@ -1,50 +1,92 @@
---[[
-	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
-]]
--- Credit to dendenzzz and Cloud UI Library
 
--- Initialize Auto-Parry
-getgenv().autoparry = false
+local parryEnabled = true 
+local parryDistance = 10
+local parryCooldown = 1   
+local lastParry = 0      
 
--- Required Services
-local Players = game:GetService("Players")
-local Player = Players.LocalPlayer or Players.PlayerAdded:Wait()
-
--- Load Cloud UI Library
-local success, Library = pcall(function()
-    return loadstring(game:HttpGet("https://raw.githubusercontent.com/LuauCloud/Byte/refs/heads/main/Utils/Library.lua"))()
-end)
-
-if not success then
-    warn("Failed to load Cloud UI Library: " .. tostring(Library))
-    return
+function isAttackIncoming(enemy, player)
+    local distance = (enemy.Position - player.Position).Magnitude
+    return distance <= parryDistance
 end
 
--- Create UI Window
-local Library_Window = Library.Add_Window("Auto Parry Settings")
+function autoParry(player)
+    if parryEnabled and (tick() - lastParry) >= parryCooldown then
+  else
+        print("Parried!") or print("false") if print("Parried") then print("ms..")
+  else
+    if toggled then
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local BallFolder = Workspace:WaitForChild("Balls")
 
--- UI Setup
-local BladeBall_Tab = Library_Window.Create_Tab({ name = "Auto-Parry", icon = "rbxassetid://6023426975" })
-local BladeBall_Section = BladeBall_Tab.Create_Section({ name = "Settings" })
+local player = Players.LocalPlayer
+local canParry = true
 
--- Auto-Parry Toggle
-BladeBall_Section.Create_Toggle({
-    name = "Enable Auto-Parry",
-    flag = "Enable_Auto_Parry",
-    callback = function(state)
-        getgenv().autoparry = state
-        print("Auto-Parry:", state and "Enabled" or "Disabled")
-
-        -- Activate the provided loadstring when Auto-Parry is enabled
-        if state then
-            pcall(function()
-                loadstring(game:HttpGet("https://scriptblox.com/raw/UPD-Blade-Ball-op-autoparry-with-visualizer-8652"))()
-            end)
+local function calculatePredictionTime(ball, player)
+    local character = player.Character
+    if character then
+        local rootPart = character:FindFirstChild("HumanoidRootPart")
+        if rootPart then
+            local relativePosition = ball.Position - rootPart.Position
+            local relativeVelocity = ball.Velocity - rootPart.Velocity
+            local a = ball.Size.Magnitude / 1
+            local b = relativePosition.Magnitude
+            local c = math.sqrt(a * a + b * b)
+            return (c - a) / relativeVelocity.Magnitude
         end
-    end,
-})
+    end
+    return math.huge
+end
 
--- Show UI
-Library_Window:Show()
+local function parry()
+    if canParry then
+        canParry = false
+        VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+        VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+        task.delay(0.1, function()
+            canParry = true
+        end)
+    end
+end
 
-print("Auto-Parry Script Loaded with Cloud UI!")
+local function checkProximityToPlayer(ball, player)
+    local predictionTime = calculatePredictionTime(ball, player)
+    local realBallAttribute = ball:GetAttribute("realBall")
+    local target = ball:GetAttribute("target")
+
+    if predictionTime and realBallAttribute and target then
+        local ballSpeedThreshold = math.max(0.4, 0.6 - ball.Velocity.Magnitude * 0.03)
+        if predictionTime <= ballSpeedThreshold and realBallAttribute and target == player.Name then
+            parry()
+        end
+    end
+end
+
+local function checkBallsProximity()
+    if player and player.Character then
+        for _, ball in ipairs(BallFolder:GetChildren()) do
+            if ball:IsA("BasePart") then
+                checkProximityToPlayer(ball, player)
+            end
+        end
+    end
+end
+
+RunService.Heartbeat:Connect(checkBallsProximity)
+        lastParry = tick()
+    end
+end
+
+while true do
+    local player = game.Players.LocalPlayer.Character
+    local enemies = game.Workspace.Enemies:GetChildren()
+
+    for _, enemy in ipairs(enemies) do
+        if isAttackIncoming(enemy, player) then
+            autoParry(player)
+        end
+    end    
+    wait(0.1) 
+end
