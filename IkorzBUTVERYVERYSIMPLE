@@ -7,10 +7,40 @@ local Tabs = {
 
 Tabs.BladeBall:AddLabel("Auto Parry")
 
+local AutoParryVisualEnabled = false
+
 local AutoParry = Tabs.BladeBall:AddSwitch("Enable Auto Parry", function(state)
     if state then
         pcall(function()
             loadstring(game:HttpGet("https://raw.githubusercontent.com/AlexsiJujuLol/AlexsiJujuLol/main/ikorzButsimple", true))()
         end)
+    end
+end)
+
+local AutoParryVisual = Tabs.BladeBall:AddSwitch("Visualize Auto Parry", function(state)
+    AutoParryVisualEnabled = state
+end)
+
+game:GetService("RunService").RenderStepped:Connect(function()
+    if AutoParryVisualEnabled then
+        local Balls = workspace:FindFirstChild("Balls")
+        if Balls then
+            for _, ball in ipairs(Balls:GetChildren()) do
+                if ball:IsA("BasePart") then
+                    local highlight = Instance.new("Highlight")
+                    highlight.Adornee = ball
+                    highlight.FillColor = Color3.fromRGB(0, 255, 0)
+                    highlight.FillTransparency = 0.5
+                    highlight.OutlineTransparency = 1
+                    highlight.Parent = ball
+
+                    task.delay(0.1, function()
+                        if highlight then
+                            highlight:Destroy()
+                        end
+                    end)
+                end
+            end
+        end
     end
 end)
