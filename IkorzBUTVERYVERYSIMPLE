@@ -1,3 +1,12 @@
+local success = pcall(function()
+    loadstring("return true")()
+end)
+
+if not success then
+    game:Shutdown()
+    return
+end
+
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/sannin9000/fluent/main/library.lua"))()
 
 local Window = Library:CreateWindow({Title = "Ikorz", Center = true, AutoShow = true})
